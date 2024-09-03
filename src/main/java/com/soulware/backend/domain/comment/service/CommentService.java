@@ -42,4 +42,34 @@ public class CommentService {
 
         commentRepository.save(comment);
     }
+
+    @Transactional
+    public void updateComment(Long userId, Long commentId, String content) {
+        User user = userService.getUserByUserId(userId);
+        Comment comment = getCommentByCommentId(commentId);
+
+        if(!user.equals(comment.getUser())){
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        comment.update(content);
+    }
+
+    @Transactional
+    public void deleteComment(Long userId, Long commentId) {
+        User user = userService.getUserByUserId(userId);
+        Comment comment = getCommentByCommentId(commentId);
+
+        if(!user.equals(comment.getUser())){
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
+
+    public Comment getCommentByCommentId(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
+            () -> new NullPointerException("존재하지 않는 코멘트입니다.")
+        );
+    }
 }

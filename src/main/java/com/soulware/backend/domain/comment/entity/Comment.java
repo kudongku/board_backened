@@ -40,4 +40,7 @@ public class Comment {
         this.post = post;
     }
 
+    public void update(String content) {
+        this.content = content;
+    }
 }
