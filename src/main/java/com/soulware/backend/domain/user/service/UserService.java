@@ -2,18 +2,23 @@ package com.soulware.backend.domain.user.service;
 
 import com.soulware.backend.domain.user.entity.User;
 import com.soulware.backend.domain.user.repository.UserRepository;
+import com.soulware.backend.global.util.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    //    private final JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void signup(
         String username,
         String password,
@@ -26,17 +31,26 @@ public class UserService {
         userRepository.save(user);
     }
 
-//    public String login(
-//        String username,
-//        String password,
-//        HttpServletResponse response
-//    ) {
-//        String bearerToken = jwtUtil.createJwt(username);
-//        response.addHeader(HttpHeaders.AUTHORIZATION, bearerToken);
-//        response.setContentType("application/json");
-//        response.setCharacterEncoding("UTF-8");
-//        return bearerToken;
-//    }
+    @Transactional
+    public String login(
+        String username,
+        String password,
+        HttpServletResponse response
+    ) {
+        User user = userRepository.findByUsername(username).orElseThrow(
+            () -> new IllegalArgumentException("잘못된 아이디를 입력했습니다.")
+        );
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("잘못된 비밀번호를 입력했습니다.");
+        }
+
+        String bearerToken = jwtUtil.createJwt(username);
+        response.addHeader(HttpHeaders.AUTHORIZATION, bearerToken);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        return bearerToken;
+    }
 
     private void validateUserName(String username) {
 
