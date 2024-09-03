@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,6 +67,19 @@ public class PostController {
         );
 
         return ResponseEntity.ok("게시물 수정이 완료되었습니다.");
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> deletePost(
+        Authentication authentication,
+        @PathVariable Long postId
+    ) {
+        postService.deletePost(
+            (Long) authentication.getPrincipal(),
+            postId
+        );
+
+        return ResponseEntity.ok("게시물 삭제가 완료되었습니다.");
     }
 
 }

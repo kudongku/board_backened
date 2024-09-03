@@ -54,4 +54,17 @@ public class PostService {
 
         post.update(title, content);
     }
+
+    @Transactional
+    public void deletePost(Long userId, Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
+        );
+
+        if(!post.getUser().getId().equals(userId)){
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        postRepository.deleteById(postId);
+    }
 }
