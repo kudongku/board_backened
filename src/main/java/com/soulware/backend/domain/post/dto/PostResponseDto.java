@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostListResponseDto {
+public class PostResponseDto {
 
     private Long postId;
     private String title;

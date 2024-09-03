@@ -1,6 +1,6 @@
 package com.soulware.backend.domain.post.service;
 
-import com.soulware.backend.domain.post.dto.PostListResponseDto;
+import com.soulware.backend.domain.post.dto.PostResponseDto;
 import com.soulware.backend.domain.post.entity.Post;
 import com.soulware.backend.domain.post.repository.PostRepository;
 import com.soulware.backend.domain.user.entity.User;
@@ -26,19 +26,32 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostListResponseDto> getPosts() {
+    public List<PostResponseDto> getPosts() {
         return postRepository.findAll()
             .stream()
-            .map(post -> new PostListResponseDto(post.getId(), post.getTitle(), post.getContent()))
+            .map(post -> new PostResponseDto(post.getId(), post.getTitle(), post.getContent()))
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public PostListResponseDto getPost(Long postId) {
+    public PostResponseDto getPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
             () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
         );
 
-        return new PostListResponseDto(postId, post.getTitle(), post.getContent());
+        return new PostResponseDto(postId, post.getTitle(), post.getContent());
+    }
+
+    @Transactional
+    public void updatePost(Long userId, Long postId, String title, String content) {
+        Post post = postRepository.findById(postId).orElseThrow(
+            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
+        );
+
+        if(!post.getUser().getId().equals(userId)){
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        post.update(title, content);
     }
 }
