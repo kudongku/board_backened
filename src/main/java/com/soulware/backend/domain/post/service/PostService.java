@@ -32,4 +32,13 @@ public class PostService {
             .map(post -> new PostListResponseDto(post.getId(), post.getTitle(), post.getContent()))
             .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public PostListResponseDto getPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
+        );
+
+        return new PostListResponseDto(postId, post.getTitle(), post.getContent());
+    }
 }
