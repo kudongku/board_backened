@@ -35,20 +35,16 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostResponseDto getPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(
-            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
-        );
+        Post post = getPostByPostId(postId);
 
         return new PostResponseDto(postId, post.getTitle(), post.getContent());
     }
 
     @Transactional
     public void updatePost(Long userId, Long postId, String title, String content) {
-        Post post = postRepository.findById(postId).orElseThrow(
-            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
-        );
+        Post post = getPostByPostId(postId);
 
-        if(!post.getUser().getId().equals(userId)){
+        if (!post.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 
@@ -57,14 +53,19 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long userId, Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(
-            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
-        );
+        Post post = getPostByPostId(postId);
 
-        if(!post.getUser().getId().equals(userId)){
+        if (!post.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 
         postRepository.deleteById(postId);
+    }
+
+    @Transactional(readOnly = true)
+    public Post getPostByPostId(Long postId) {
+        return postRepository.findById(postId).orElseThrow(
+            () -> new NullPointerException("해당하는 게시물이 존재하지 않습니다.")
+        );
     }
 }
