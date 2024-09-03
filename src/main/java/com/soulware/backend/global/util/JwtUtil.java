@@ -22,7 +22,7 @@ public class JwtUtil {
 
     @Value("${jwt.secret.key}")
     private String secretKey;
-    private static final Long expiredMs = 1000 * 30L;
+    private static final Long expiredMs = 1000 * 60 * 60 * 3L;
     private static final String BEARER_PREFIX = "Bearer ";
 
     private Key key;
@@ -58,7 +58,7 @@ public class JwtUtil {
     }
 
     public boolean isExpired(String token) {
-        try{
+        try {
             return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -66,9 +66,18 @@ public class JwtUtil {
                 .getBody()
                 .getExpiration()
                 .before(new Date(System.currentTimeMillis()));
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             return true;
         }
+    }
+
+    public String getUsernameFromToken(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .get("username", String.class);
     }
 
 }
