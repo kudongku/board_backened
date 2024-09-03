@@ -33,9 +33,10 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createJwt(String username) {
+    public String createJwt(Long userId, String username) {
         Claims claims = Jwts.claims();
         claims.put("username", username);
+        claims.put("userId", userId);
 
         return BEARER_PREFIX +
             Jwts.builder()
@@ -71,13 +72,13 @@ public class JwtUtil {
         }
     }
 
-    public String getUsernameFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         return Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
             .parseClaimsJws(token)
             .getBody()
-            .get("username", String.class);
+            .get("userId", Long.class);
     }
 
 }
