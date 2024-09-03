@@ -52,6 +52,13 @@ public class UserService {
         return bearerToken;
     }
 
+    @Transactional(readOnly = true)
+    public User getUserByUserId(Long userId){
+        return userRepository.findById(userId).orElseThrow(
+            () -> new IllegalArgumentException("유효하지 않는 아이디입니다.")
+        );
+    }
+
     private void validateUserName(String username) {
 
         if (userRepository.existsByUsername(username)) {
