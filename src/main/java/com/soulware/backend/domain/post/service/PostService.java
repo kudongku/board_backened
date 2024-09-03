@@ -1,9 +1,12 @@
 package com.soulware.backend.domain.post.service;
 
+import com.soulware.backend.domain.post.dto.PostListResponseDto;
 import com.soulware.backend.domain.post.entity.Post;
 import com.soulware.backend.domain.post.repository.PostRepository;
 import com.soulware.backend.domain.user.entity.User;
 import com.soulware.backend.domain.user.service.UserService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,4 +25,11 @@ public class PostService {
         postRepository.save(post);
     }
 
+    @Transactional(readOnly = true)
+    public List<PostListResponseDto> getPosts() {
+        return postRepository.findAll()
+            .stream()
+            .map(post -> new PostListResponseDto(post.getId(), post.getTitle(), post.getContent()))
+            .collect(Collectors.toList());
+    }
 }
