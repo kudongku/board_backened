@@ -1,6 +1,7 @@
 package com.soulware.backend.domain.post.service;
 
-import com.soulware.backend.domain.post.dto.PostResponseDto;
+import com.soulware.backend.domain.post.dto.PostDetailResponseDto;
+import com.soulware.backend.domain.post.dto.PostListResponseDto;
 import com.soulware.backend.domain.post.entity.Post;
 import com.soulware.backend.domain.post.repository.PostRepository;
 import com.soulware.backend.domain.user.entity.User;
@@ -26,18 +27,23 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPosts() {
+    public List<PostListResponseDto> getPosts() {
         return postRepository.findAll()
             .stream()
-            .map(post -> new PostResponseDto(post.getId(), post.getTitle(), post.getContent()))
+            .map(post -> new PostListResponseDto(
+                post.getId(),
+                post.getTitle(),
+                post.getUser().getUsername(),
+                post.getCreatedAt())
+            )
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public PostResponseDto getPost(Long postId) {
+    public PostDetailResponseDto getPost(Long postId) {
         Post post = getPostByPostId(postId);
 
-        return new PostResponseDto(postId, post.getTitle(), post.getContent());
+        return new PostDetailResponseDto(post.getTitle(), post.getContent(), post.getUser().getUsername(), post.getCreatedAt());
     }
 
     @Transactional

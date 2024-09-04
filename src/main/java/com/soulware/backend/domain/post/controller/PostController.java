@@ -1,7 +1,8 @@
 package com.soulware.backend.domain.post.controller;
 
+import com.soulware.backend.domain.post.dto.PostDetailResponseDto;
 import com.soulware.backend.domain.post.dto.PostRequestDto;
-import com.soulware.backend.domain.post.dto.PostResponseDto;
+import com.soulware.backend.domain.post.dto.PostListResponseDto;
 import com.soulware.backend.domain.post.service.PostService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,19 +25,19 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> getPosts() {
-        List<PostResponseDto> posts = postService.getPosts();
+    public ResponseEntity<List<PostListResponseDto>> getPosts() {
+        List<PostListResponseDto> posts = postService.getPosts();
 
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> getPost(
+    public ResponseEntity<PostDetailResponseDto> getPost(
         @PathVariable Long postId
     ) {
-        PostResponseDto postResponseDto = postService.getPost(postId);
+        PostDetailResponseDto postDetailResponseDto = postService.getPost(postId);
 
-        return ResponseEntity.ok(postResponseDto);
+        return ResponseEntity.ok(postDetailResponseDto);
     }
 
     @PostMapping
