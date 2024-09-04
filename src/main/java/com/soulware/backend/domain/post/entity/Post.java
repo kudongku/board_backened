@@ -1,5 +1,6 @@
 package com.soulware.backend.domain.post.entity;
 
+import com.soulware.backend.domain.common.Timestamp;
 import com.soulware.backend.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "posts")
 @Entity
-public class Post {
+public class Post extends Timestamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
