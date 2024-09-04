@@ -1,7 +1,10 @@
 package com.soulware.backend.global.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.soulware.backend.global.filter.JwtFilter;
 import com.soulware.backend.global.util.JwtUtil;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +36,7 @@ public class AuthenticationConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+            .cors(withDefaults())
             .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
@@ -48,9 +52,14 @@ public class AuthenticationConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(List.of("authorization", "content-type", "x-auth-token"));
+        configuration.setAllowedHeaders(List.of("Authorization", "content-type", "x-auth-token"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Headers",
+            "Authorization, x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, "
+                +
+                "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"));
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
