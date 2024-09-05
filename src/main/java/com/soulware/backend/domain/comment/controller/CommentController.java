@@ -65,11 +65,13 @@ public class CommentController {
     @DeleteMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<String> deleteComment(
         Authentication authentication,
-        @PathVariable Long commentId
+        @PathVariable Long commentId,
+        @PathVariable Long postId
     ) {
         commentService.deleteComment(
             (Long) authentication.getPrincipal(),
-            commentId
+            commentId,
+            postId
         );
 
         return ResponseEntity.ok("댓글 삭제가 완료되었습니다.");

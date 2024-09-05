@@ -39,6 +39,7 @@ public class CommentService {
         User user = userService.getUserByUserId(userId);
         Post post = postService.getPostByPostId(postId);
         Comment comment = new Comment(content, user, post);
+        post.addComment(comment);
 
         commentRepository.save(comment);
     }
@@ -56,14 +57,16 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long userId, Long commentId) {
+    public void deleteComment(Long userId, Long commentId, Long postId) {
         User user = userService.getUserByUserId(userId);
+        Post post = postService.getPostByPostId(postId);
         Comment comment = getCommentByCommentId(commentId);
 
         if(!user.equals(comment.getUser())){
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 
+        post.removeComment(comment);
         commentRepository.delete(comment);
     }
 
