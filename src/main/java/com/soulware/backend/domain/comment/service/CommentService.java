@@ -7,8 +7,9 @@ import com.soulware.backend.domain.post.entity.Post;
 import com.soulware.backend.domain.post.service.PostService;
 import com.soulware.backend.domain.user.entity.User;
 import com.soulware.backend.domain.user.service.UserService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +22,18 @@ public class CommentService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public List<CommentResponseDto> getComments(Long postId) {
+    public Slice<CommentResponseDto> getComments(
+        Long postId,
+        Pageable pageable
+    ) {
         Post post = postService.getPostByPostId(postId);
+        Slice<Comment> comments = commentRepository.findAllByPost(post, pageable);
 
-        return commentRepository.findAllByPost(post)
-            .stream()
-            .map(comment -> new CommentResponseDto(
-                comment.getId(),
-                comment.getContent(),
-                comment.getUser().getUsername())
-            )
-            .toList();
+        return comments.map(comment -> new CommentResponseDto(
+            comment.getId(),
+            comment.getContent(),
+            comment.getUser().getUsername()
+        ));
     }
 
     @Transactional
@@ -49,7 +51,7 @@ public class CommentService {
         User user = userService.getUserByUserId(userId);
         Comment comment = getCommentByCommentId(commentId);
 
-        if(!user.equals(comment.getUser())){
+        if (!user.equals(comment.getUser())) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 
@@ -62,7 +64,7 @@ public class CommentService {
         Post post = postService.getPostByPostId(postId);
         Comment comment = getCommentByCommentId(commentId);
 
-        if(!user.equals(comment.getUser())){
+        if (!user.equals(comment.getUser())) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 

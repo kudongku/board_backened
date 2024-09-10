@@ -3,8 +3,9 @@ package com.soulware.backend.domain.comment.controller;
 import com.soulware.backend.domain.comment.dto.CommentRequestDto;
 import com.soulware.backend.domain.comment.dto.CommentResponseDto;
 import com.soulware.backend.domain.comment.service.CommentService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,10 +25,14 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<List<CommentResponseDto>> getComments(
-        @PathVariable Long postId
+    public ResponseEntity<Slice<CommentResponseDto>> getComments(
+        @PathVariable Long postId,
+        Pageable pageable
     ) {
-        List<CommentResponseDto> commentResponseDto = commentService.getComments(postId);
+        Slice<CommentResponseDto> commentResponseDto = commentService.getComments(
+            postId,
+            pageable
+        );
 
         return ResponseEntity.ok(commentResponseDto);
     }
