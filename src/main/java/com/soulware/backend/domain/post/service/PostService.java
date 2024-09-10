@@ -6,9 +6,9 @@ import com.soulware.backend.domain.post.entity.Post;
 import com.soulware.backend.domain.post.repository.PostRepository;
 import com.soulware.backend.domain.user.entity.User;
 import com.soulware.backend.domain.user.service.UserService;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,23 +27,28 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostListResponseDto> getPosts() {
-        return postRepository.findAll()
-            .stream()
-            .map(post -> new PostListResponseDto(
-                post.getId(),
-                post.getTitle(),
-                post.getUser().getUsername(),
-                post.getCreatedAt())
-            )
-            .collect(Collectors.toList());
+    public Slice<PostListResponseDto> getPosts(Pageable pageable) {
+        Slice<Post> posts = postRepository.findAll(pageable);
+
+        return posts.map(post -> new PostListResponseDto(
+            post.getId(),
+            post.getTitle(),
+            post.getUser().getUsername(),
+            post.getCreatedAt()
+        ));
     }
+
 
     @Transactional(readOnly = true)
     public PostDetailResponseDto getPost(Long postId) {
         Post post = getPostByPostId(postId);
 
-        return new PostDetailResponseDto(post.getTitle(), post.getContent(), post.getUser().getUsername(), post.getCreatedAt());
+        return new PostDetailResponseDto(
+            post.getTitle(),
+            post.getContent(),
+            post.getUser().getUsername(),
+            post.getCreatedAt()
+        );
     }
 
     @Transactional

@@ -1,11 +1,12 @@
 package com.soulware.backend.domain.post.controller;
 
 import com.soulware.backend.domain.post.dto.PostDetailResponseDto;
-import com.soulware.backend.domain.post.dto.PostRequestDto;
 import com.soulware.backend.domain.post.dto.PostListResponseDto;
+import com.soulware.backend.domain.post.dto.PostRequestDto;
 import com.soulware.backend.domain.post.service.PostService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,10 +26,12 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<PostListResponseDto>> getPosts() {
-        List<PostListResponseDto> posts = postService.getPosts();
+    public ResponseEntity<Slice<PostListResponseDto>> getPosts(
+        Pageable pageable
+    ) {
+        Slice<PostListResponseDto> pagedPosts = postService.getPosts(pageable);
 
-        return ResponseEntity.ok(posts);
+        return ResponseEntity.ok(pagedPosts);
     }
 
     @GetMapping("/{postId}")
