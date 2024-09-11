@@ -20,10 +20,11 @@ public class PostService {
     private final UserService userService;
 
     @Transactional
-    public void createPost(Long userId, String title, String content) {
+    public Long createPost(Long userId, String title, String content) {
         User user = userService.getUserByUserId(userId);
         Post post = new Post(title, content, user);
         postRepository.save(post);
+        return post.getId();
     }
 
     @Transactional(readOnly = true)

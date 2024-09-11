@@ -44,17 +44,17 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createPost(
+    public ResponseEntity<Long> createPost(
         Authentication authentication,
         @RequestBody PostRequestDto postRequestDto
     ) {
-        postService.createPost(
+        Long postID = postService.createPost(
             (Long) authentication.getPrincipal(),
             postRequestDto.getTitle(),
             postRequestDto.getContent()
         );
 
-        return ResponseEntity.ok("게시물 생성이 완료되었습니다.");
+        return ResponseEntity.ok(postID);
     }
 
     @PutMapping("/{postId}")
