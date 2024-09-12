@@ -44,17 +44,26 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> createPost(
+    public ResponseEntity<String> createPost(
         Authentication authentication,
         @RequestBody PostRequestDto postRequestDto
     ) {
-        Long postID = postService.createPost(
-            (Long) authentication.getPrincipal(),
-            postRequestDto.getTitle(),
-            postRequestDto.getContent()
-        );
+        if (postRequestDto.getFileId() != null) {
+            postService.createPost(
+                (Long) authentication.getPrincipal(),
+                postRequestDto.getTitle(),
+                postRequestDto.getContent(),
+                postRequestDto.getFileId()
+            );
+        } else {
+            postService.createPost(
+                (Long) authentication.getPrincipal(),
+                postRequestDto.getTitle(),
+                postRequestDto.getContent()
+            );
+        }
 
-        return ResponseEntity.ok(postID);
+        return ResponseEntity.ok("게시물 생성이 완료되었습니다.");
     }
 
     @PutMapping("/{postId}")
@@ -63,14 +72,37 @@ public class PostController {
         @RequestBody PostRequestDto postRequestDto,
         @PathVariable Long postId
     ) {
-        postService.updatePost(
-            (Long) authentication.getPrincipal(),
-            postId,
-            postRequestDto.getTitle(),
-            postRequestDto.getContent()
-        );
+        if (postRequestDto.getFileId() != null) {
+            postService.updatePost(
+                (Long) authentication.getPrincipal(),
+                postId,
+                postRequestDto.getTitle(),
+                postRequestDto.getContent(),
+                postRequestDto.getFileId()
+            );
+        }else{
+            postService.updatePost(
+                (Long) authentication.getPrincipal(),
+                postId,
+                postRequestDto.getTitle(),
+                postRequestDto.getContent()
+            );
+        }
 
         return ResponseEntity.ok("게시물 수정이 완료되었습니다.");
+    }
+
+    @DeleteMapping("/{postId}/files")
+    public ResponseEntity<String> deleteFile(
+        Authentication authentication,
+        @PathVariable Long postId
+    ) {
+        postService.deleteFile(
+            (Long) authentication.getPrincipal(),
+            postId
+        );
+
+        return ResponseEntity.ok("file 삭제가 완료되었습니다.");
     }
 
     @DeleteMapping("/{postId}")

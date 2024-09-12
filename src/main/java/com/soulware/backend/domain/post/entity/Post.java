@@ -52,6 +52,13 @@ public class Post extends Timestamp {
         this.user = user;
     }
 
+    public Post(String title, String content, User user, File file) {
+        this.title = title;
+        this.content = content;
+        this.user = user;
+        this.file = file;
+    }
+
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
@@ -67,10 +74,6 @@ public class Post extends Timestamp {
 
     public void setFile(File file) {
         this.file = file;
-    }
-
-    public void removeFile(){
-        this.file = null;
     }
 
 }

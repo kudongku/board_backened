@@ -1,9 +1,10 @@
 package com.soulware.backend.domain.file.service;
 
+import com.soulware.backend.domain.file.dto.FileCreateResponseDto;
 import com.soulware.backend.domain.file.entity.File;
 import com.soulware.backend.domain.file.repository.FileRepository;
-import com.soulware.backend.domain.post.entity.Post;
-import com.soulware.backend.domain.post.service.PostService;
+import com.soulware.backend.domain.user.entity.User;
+import com.soulware.backend.domain.user.service.UserService;
 import com.soulware.backend.global.exception.NoFileException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,31 +28,31 @@ public class FileService {
     private String FILE_DIRECTORY;
 
     private final FileRepository fileRepository;
-    private final PostService postService;
+    private final UserService userService;
 
     @Transactional
-    public void uploadImage(
-        Long postId,
+    public FileCreateResponseDto uploadFile(
+        Long userId,
         MultipartFile postImage
     ) throws IOException {
-        Post post = postService.getPostByPostId(postId);
+        User user = userService.getUserByUserId(userId);
 
         String fileName = UUID.randomUUID() + "_" + postImage.getOriginalFilename();
         Path filePath = Paths.get(FILE_DIRECTORY + fileName);
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, postImage.getBytes());
 
-        File file = new File(fileName, post);
+        File file = new File(fileName, user);
         fileRepository.save(file);
-        post.setFile(file);
+
+        return new FileCreateResponseDto(file.getId());
     }
 
     @Transactional(readOnly = true)
-    public Resource getFiles(
+    public Resource getFile(
         Long postId
     ) throws MalformedURLException {
-        Post post = postService.getPostByPostId(postId);
-        File file = fileRepository.findByPost(post).orElseThrow(
+        File file = fileRepository.findByPostId(postId).orElseThrow(
             () -> new NoFileException("해당하는 이미지가 존재하지 않습니다.")
         );
         Path filePath = Paths.get(FILE_DIRECTORY + file.getFileName());
@@ -60,18 +61,13 @@ public class FileService {
     }
 
     @Transactional
-    public void updateImage(
+    public FileCreateResponseDto updateFile(
         Long userId,
         Long postId,
         MultipartFile postImage
     ) throws IOException {
-        Post post = postService.getPostByPostId(postId);
-
-        if(!post.getUser().getId().equals(userId)){
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
-
-        File file = fileRepository.findByPost(post).orElse(null);
+        User user = userService.getUserByUserId(userId);
+        File file = fileRepository.findByPostId(postId).orElse(null);
 
         String fileName = UUID.randomUUID() + "_" + postImage.getOriginalFilename();
         Path filePath = Paths.get(FILE_DIRECTORY + fileName);
@@ -79,27 +75,36 @@ public class FileService {
         Files.write(filePath, postImage.getBytes());
 
         if (file == null) {
-            file = new File(fileName, post);
+            file = new File(fileName, user);
             fileRepository.save(file);
-            post.setFile(file);
-            return;
+            return new FileCreateResponseDto(file.getId());
         }
 
         file.updateFileName(fileName);
+        return new FileCreateResponseDto(file.getId());
     }
 
     @Transactional
-    public void deleteImage(Long userId, Long postId) {
-        Post post = postService.getPostByPostId(postId);
-        File file = fileRepository.findByPost(post).orElseThrow(
+    public void deleteFile(
+        Long userId,
+        Long postId
+    ) {
+        File file = fileRepository.findByPostId(postId).orElseThrow(
             () -> new NullPointerException("해당하는 이미지가 존재하지 않습니다.")
         );
 
-        if(!post.getUser().getId().equals(userId)){
+        if (!file.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 
-        post.removeFile();
         fileRepository.delete(file);
     }
+
+    @Transactional(readOnly = true)
+    public File getFileByFileId(Long fileId) {
+        return fileRepository.findById(fileId).orElseThrow(
+            () -> new NullPointerException("해당하는 사진이 존재하지 않습니다.")
+        );
+    }
+
 }

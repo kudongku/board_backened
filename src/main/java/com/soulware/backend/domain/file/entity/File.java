@@ -2,12 +2,14 @@ package com.soulware.backend.domain.file.entity;
 
 import com.soulware.backend.domain.common.Timestamp;
 import com.soulware.backend.domain.post.entity.Post;
+import com.soulware.backend.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -30,13 +32,20 @@ public class File extends Timestamp {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public File(String fileName, Post post) {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public File(String fileName, User user) {
         this.fileName = fileName;
-        this.post = post;
+        this.user = user;
     }
 
     public void updateFileName(String fileName) {
         this.fileName = fileName;
     }
 
+    public void setPost(Post post) {
+        this.post = post;
+    }
 }

@@ -14,5 +14,6 @@ public class PostDetailResponseDto {
     private String content;
     private String username;
     private LocalDateTime createdAt;
+    private boolean hasFile;
 
 }
