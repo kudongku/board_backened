@@ -55,7 +55,7 @@ public class FileController {
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + fileDownloadResponseDto.getFileName() + "\""
+                "filename=" + fileDownloadResponseDto.getFileName()
             )
             .body(fileDownloadResponseDto.getResource());
     }
