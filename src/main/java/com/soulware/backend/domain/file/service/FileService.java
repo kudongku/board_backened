@@ -32,14 +32,14 @@ public class FileService {
     @Transactional
     public FileCreateResponseDto uploadFile(
         Long userId,
-        MultipartFile postImage
+        MultipartFile postFile
     ) throws IOException {
         User user = userService.getUserByUserId(userId);
 
-        String fileName = UUID.randomUUID() + "_" + postImage.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + postFile.getOriginalFilename();
         Path filePath = Paths.get(FILE_DIRECTORY + fileName);
         Files.createDirectories(filePath.getParent());
-        Files.write(filePath, postImage.getBytes());
+        Files.write(filePath, postFile.getBytes());
 
         File file = new File(fileName, user);
         fileRepository.save(file);

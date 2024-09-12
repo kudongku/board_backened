@@ -28,16 +28,16 @@ public class FileController {
     @PostMapping("/files")
     public ResponseEntity<FileCreateResponseDto> uploadFile(
         Authentication authentication,
-        @RequestPart("postImage") MultipartFile postImage
+        @RequestPart("postFile") MultipartFile postFile
     ) throws IOException {
 
-        if (postImage.isEmpty()) {
+        if (postFile.isEmpty()) {
             throw new NullPointerException("file이 존재하지 않습니다.");
         }
 
         FileCreateResponseDto fileCreateResponseDto = fileService.uploadFile(
             (Long) authentication.getPrincipal(),
-            postImage
+            postFile
         );
 
         return ResponseEntity.ok(fileCreateResponseDto);
