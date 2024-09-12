@@ -144,11 +144,18 @@ public class PostService {
 
 
     @Transactional
-    public void deletePost(Long userId, Long postId) {
+    public void deletePost(
+        Long userId,
+        Long postId)
+    {
         Post post = getPostByPostId(postId);
 
         if (!post.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        if(post.getFile()!=null){
+            fileService.deleteFile(userId, postId);
         }
 
         postRepository.deleteById(postId);

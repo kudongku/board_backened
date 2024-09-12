@@ -103,6 +103,13 @@ public class FileService {
             throw new IllegalArgumentException("권한이 없습니다.");
         }
 
+        try {
+            Path filePath = Paths.get(FILE_DIRECTORY + file.getFileName());
+            Files.delete(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 삭제에 실패했습니다.", e);
+        }
+
         fileRepository.delete(file);
     }
 
