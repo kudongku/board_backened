@@ -1,6 +1,7 @@
 package com.soulware.backend.domain.file.service;
 
 import com.soulware.backend.domain.file.dto.FileCreateResponseDto;
+import com.soulware.backend.domain.file.dto.FileDownloadResponseDto;
 import com.soulware.backend.domain.file.entity.File;
 import com.soulware.backend.domain.file.repository.FileRepository;
 import com.soulware.backend.domain.user.entity.User;
@@ -10,6 +11,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,50 +38,55 @@ public class FileService {
     ) throws IOException {
         User user = userService.getUserByUserId(userId);
 
-        String fileName = UUID.randomUUID() + "_" + postFile.getOriginalFilename();
+        String originalFileName = Objects.requireNonNull(
+            postFile.getOriginalFilename()
+        ).replaceAll(" ", "");
+        String fileName = UUID.randomUUID() + "_" + originalFileName;
         Path filePath = Paths.get(FILE_DIRECTORY + fileName);
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, postFile.getBytes());
 
-        File file = new File(fileName, user);
+        File file = new File(originalFileName, fileName, user);
         fileRepository.save(file);
 
         return new FileCreateResponseDto(file.getId());
     }
 
     @Transactional(readOnly = true)
-    public Resource getFile(
+    public FileDownloadResponseDto downloadFile(
         Long postId
     ) throws MalformedURLException {
         File file = fileRepository.findByPostId(postId).orElseThrow(
             () -> new NullPointerException("이미지가 존재하지 않습니다.")
         );
         Path filePath = Paths.get(FILE_DIRECTORY + file.getFileName());
+        Resource resource = new UrlResource(filePath.toUri());
 
-        return new UrlResource(filePath.toUri());
+        return new FileDownloadResponseDto(file.getOriginalFileName(), resource);
     }
 
     @Transactional
     public FileCreateResponseDto updateFile(
         Long userId,
         Long postId,
-        MultipartFile postImage
+        MultipartFile postFile
     ) throws IOException {
         User user = userService.getUserByUserId(userId);
         File file = fileRepository.findByPostId(postId).orElse(null);
 
-        String fileName = UUID.randomUUID() + "_" + postImage.getOriginalFilename();
+        String originalFileName = postFile.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + postFile.getOriginalFilename();
         Path filePath = Paths.get(FILE_DIRECTORY + fileName);
         Files.createDirectories(filePath.getParent());
-        Files.write(filePath, postImage.getBytes());
+        Files.write(filePath, postFile.getBytes());
 
         if (file == null) {
-            file = new File(fileName, user);
+            file = new File(originalFileName, fileName, user);
             fileRepository.save(file);
             return new FileCreateResponseDto(file.getId());
         }
 
-        file.updateFileName(fileName);
+        file.updateFileName(originalFileName, fileName);
         return new FileCreateResponseDto(file.getId());
     }
 

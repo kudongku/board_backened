@@ -1,11 +1,13 @@
 package com.soulware.backend.domain.file.controller;
 
 import com.soulware.backend.domain.file.dto.FileCreateResponseDto;
+import com.soulware.backend.domain.file.dto.FileDownloadResponseDto;
 import com.soulware.backend.domain.file.service.FileService;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -44,14 +46,18 @@ public class FileController {
     }
 
     @GetMapping("/{postId}/files")
-    public ResponseEntity<Resource> getFile(
+    public ResponseEntity<Resource> downloadFile(
         @PathVariable Long postId
     ) throws MalformedURLException {
-        Resource resource = fileService.getFile(postId);
+        FileDownloadResponseDto fileDownloadResponseDto = fileService.downloadFile(postId);
 
         return ResponseEntity.ok()
-            .contentType(MediaType.IMAGE_JPEG)
-            .body(resource);
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + fileDownloadResponseDto.getFileName() + "\""
+            )
+            .body(fileDownloadResponseDto.getResource());
     }
 
     @PutMapping("/{postId}/files")

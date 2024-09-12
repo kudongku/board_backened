@@ -26,6 +26,9 @@ public class File extends Timestamp {
     private Long id;
 
     @Column(nullable = false)
+    private String originalFileName;
+
+    @Column(nullable = false)
     private String fileName;
 
     @OneToOne
@@ -36,12 +39,14 @@ public class File extends Timestamp {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public File(String fileName, User user) {
+    public File(String originalFileName, String fileName, User user) {
+        this.originalFileName = originalFileName;
         this.fileName = fileName;
         this.user = user;
     }
 
-    public void updateFileName(String fileName) {
+    public void updateFileName(String originalFileName, String fileName) {
+        this.originalFileName = originalFileName;
         this.fileName = fileName;
     }
 
