@@ -5,7 +5,6 @@ import com.soulware.backend.domain.file.entity.File;
 import com.soulware.backend.domain.file.repository.FileRepository;
 import com.soulware.backend.domain.user.entity.User;
 import com.soulware.backend.domain.user.service.UserService;
-import com.soulware.backend.global.exception.NoFileException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -53,7 +52,7 @@ public class FileService {
         Long postId
     ) throws MalformedURLException {
         File file = fileRepository.findByPostId(postId).orElseThrow(
-            () -> new NoFileException("해당하는 이미지가 존재하지 않습니다.")
+            () -> new NullPointerException("이미지가 존재하지 않습니다.")
         );
         Path filePath = Paths.get(FILE_DIRECTORY + file.getFileName());
 
