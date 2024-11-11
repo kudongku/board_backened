@@ -38,3 +38,6 @@ out/
 
 ### application.properties ###
 src/main/resources/application.properties
+
+### temp files ###
+src/main/resources/temp/

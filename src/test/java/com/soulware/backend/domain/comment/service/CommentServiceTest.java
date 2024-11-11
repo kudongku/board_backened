@@ -14,7 +14,7 @@ class CommentServiceTest {
     void createComment() {
 
         for (int i = 0; i < 1000; i++) {
-            commentService.createComment(1L, 1035L, i + 1 + "번째 댓글");
+            commentService.createComment(1L, 1000L, i + 1 + "번째 댓글");
         }
 
     }
