@@ -22,7 +22,6 @@ public class JwtUtil {
 
     @Value("${jwt.secret.key}")
     private String secretKey;
-    private static final Long expiredMs = 1000 * 60 * 60 * 3L;
     private static final String BEARER_PREFIX = "Bearer ";
 
     private Key key;
@@ -33,13 +32,12 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createJwt(Long userId, String username) {
+    public String createJwt(Long userId, String username, Long expiredMs) {
         Claims claims = Jwts.claims();
         claims.put("username", username);
         claims.put("userId", userId);
 
-        return BEARER_PREFIX +
-            Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))

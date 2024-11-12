@@ -1,6 +1,8 @@
 package com.soulware.backend.domain.user.controller;
 
 import com.soulware.backend.domain.user.dto.UserLoginRequestDto;
+import com.soulware.backend.domain.user.dto.UserLoginResponseDto;
+import com.soulware.backend.domain.user.dto.UserRefreshRequestDto;
 import com.soulware.backend.domain.user.dto.UserSignupRequestDto;
 import com.soulware.backend.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,17 +34,25 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<UserLoginResponseDto> login(
         @RequestBody UserLoginRequestDto userLoginRequestDto,
         HttpServletResponse response
     ) {
-        String tokenValue = userService.login(
+        UserLoginResponseDto userLoginResponseDto = userService.login(
             userLoginRequestDto.getUsername(),
-            userLoginRequestDto.getPassword(),
-            response
+            userLoginRequestDto.getPassword()
         );
 
-        return ResponseEntity.ok(tokenValue);
+        return ResponseEntity.ok(userLoginResponseDto);
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<UserLoginResponseDto> refresh(
+            @RequestBody UserRefreshRequestDto userRefreshRequestDto
+    ){
+        UserLoginResponseDto userLoginResponseDto = userService.refresh(
+            userRefreshRequestDto.getRefreshToken()
+        );
+        return ResponseEntity.ok(userLoginResponseDto);
+    }
 }
