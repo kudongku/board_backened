@@ -63,7 +63,7 @@ public class FileController {
     @PutMapping("/{postId}/files")
     public ResponseEntity<FileCreateResponseDto> updateFile(
         Authentication authentication,
-        @RequestPart("postImage") MultipartFile postImage,
+        @RequestPart("postFile") MultipartFile postImage,
         @PathVariable Long postId
     ) throws IOException {
 

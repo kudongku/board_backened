@@ -49,7 +49,8 @@ public class UserService {
         String refreshToken = jwtUtil.createJwt(user.getId(), username, REFRESH_TOKEN_EXPIRED_MS);
         return new UserLoginResponseDto(
                 accessToken,
-                refreshToken
+                refreshToken,
+                username
         );
     }
 
@@ -61,7 +62,8 @@ public class UserService {
         String accessToken = jwtUtil.createJwt(userId, user.getUsername(), ACCESS_TOKEN_EXPIRED_MS);
         return new UserLoginResponseDto(
                 accessToken,
-                refreshToken
+                refreshToken,
+                user.getUsername()
         );
     }
 
