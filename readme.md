@@ -17,3 +17,8 @@ exit
 docker build -t board-back .
 docker run -p 8080:8080 --name board-back-container --network docker-network  -d board-back
 ```
+
+### docker compose
+```bash
+docker compose up -d  
+```
