@@ -1,6 +1,6 @@
 package com.soulware.backend.domain.user.entity;
 
-import com.soulware.backend.domain.common.Timestamp;
+import com.soulware.backend.domain.common.entity.Timestamp;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

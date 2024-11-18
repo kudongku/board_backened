@@ -1,7 +1,7 @@
 package com.soulware.backend.domain.post.entity;
 
 import com.soulware.backend.domain.comment.entity.Comment;
-import com.soulware.backend.domain.common.Timestamp;
+import com.soulware.backend.domain.common.entity.Timestamp;
 import com.soulware.backend.domain.file.entity.File;
 import com.soulware.backend.domain.user.entity.User;
 import jakarta.persistence.CascadeType;

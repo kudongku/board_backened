@@ -1,4 +1,4 @@
-package com.soulware.backend.domain.common;
+package com.soulware.backend.domain.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
