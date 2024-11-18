@@ -1,17 +1,14 @@
 package com.soulware.backend.global.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import com.soulware.backend.global.filter.JwtFilter;
 import com.soulware.backend.global.util.JwtUtil;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,37 +31,41 @@ public class AuthenticationConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-            .cors(withDefaults())
-            .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/api/users/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(
+                        (sessionManagement) -> sessionManagement.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests((authorizeHttpRequests) ->
+                        authorizeHttpRequests
+                                .requestMatchers(
+                                        "/docs",
+                                        "/v3/api-docs/**",       // OpenAPI 3 문서 관련 엔드포인트
+                                        "/swagger-ui/**",        // Swagger UI 관련 엔드포인트
+                                        "/swagger-ui.html",      // Swagger UI 메인 페이지
+                                        "/swagger-resources/**", // Swagger 리소스
+                                        "/webjars/**",           // 웹자바 리소스
+                                        "/configuration/ui",     // Swagger UI 설정
+                                        "/configuration/security"// Swagger 보안 설정
+                                ).permitAll()
+                                .requestMatchers("/health").permitAll()
+                                .requestMatchers("/api/users/*").permitAll()
+                                .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     public CorsFilter corsFilter() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(
-            List.of("Authorization", "content-type", "x-auth-token", "Content-Disposition")
-        );
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        configuration.setExposedHeaders(List.of(
-            "Access-Control-Allow-Headers", "Authorization", "x-xsrf-token",
-            "Access-Control-Allow-Headers", "Origin", "Accept", "X-Requested-With", "Content-Type",
-            "Access-Control-Request-Method", "Access-Control-Request-Headers", "Content-Disposition"
-        ));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*"); // 모든 도메인 허용
+        config.addAllowedHeader("*");        // 모든 헤더 허용
+        config.addAllowedMethod("*");        // 모든 메서드 허용
+        source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 
