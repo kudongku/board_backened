@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: board-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: board-back
+  template:
+    metadata:
+      labels:
+        app: board-back
+    spec:
+      containers:
+        - name: board-back
+          image: kudongku/board-back-image
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: board-service
+spec:
+  selector:
+    app: board-back
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
