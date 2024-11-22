@@ -52,6 +52,7 @@ public class AuthenticationConfig {
                                 ).permitAll()
                                 .requestMatchers("/health").permitAll()
                                 .requestMatchers("/api/users/**").permitAll()
+                                .requestMatchers("/comments").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                                 .anyRequest().authenticated()
                 )
