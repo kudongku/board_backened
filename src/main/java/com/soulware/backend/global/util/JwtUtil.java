@@ -7,14 +7,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.security.Key;
+import java.util.Base64;
+import java.util.Date;
 
 @Slf4j(topic = "JwtUtil")
 @Component
@@ -59,12 +60,12 @@ public class JwtUtil {
     public boolean isExpired(String token) {
         try {
             return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .before(new Date(System.currentTimeMillis()));
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration()
+                    .before(new Date(System.currentTimeMillis()));
         } catch (ExpiredJwtException e) {
             return true;
         }
@@ -72,11 +73,20 @@ public class JwtUtil {
 
     public Long getUserIdFromToken(String token) {
         return Jwts.parserBuilder()
-            .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .get("userId", Long.class);
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", Long.class);
+    }
+
+    public String getUsernameFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("username", String.class);
     }
 
 }

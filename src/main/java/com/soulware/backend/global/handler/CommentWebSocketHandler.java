@@ -1,7 +1,7 @@
 package com.soulware.backend.global.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soulware.backend.domain.comment.dto.CommentRequestDto;
+import com.soulware.backend.domain.comment.dto.CommentResponseDto;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -27,7 +26,7 @@ public class CommentWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(
             @NonNull WebSocketSession session
     ) {
-        Long postId = getPostIdFromSession(session);
+        Long postId = Long.parseLong(session.getAttributes().get("postId").toString());
         sessionMap.computeIfAbsent(postId, id -> new ConcurrentLinkedQueue<>()).add(session);
 
         log.info("comment websocket connect = postId : {}", postId);
@@ -38,16 +37,15 @@ public class CommentWebSocketHandler extends TextWebSocketHandler {
             @NonNull WebSocketSession session,
             @NonNull TextMessage message
     ) throws Exception {
-        Long postId = getPostIdFromSession(session);
+        Long postId = Long.parseLong(session.getAttributes().get("postId").toString());
         String content = message.getPayload();
-        CommentRequestDto commentRequestDto = new CommentRequestDto(content);
+        String username = session.getAttributes().get("username").toString();
+        CommentResponseDto commentResponseDto = new CommentResponseDto(content, username);
         ConcurrentLinkedQueue<WebSocketSession> sessions = sessionMap.get(postId);
 
-        if (sessions != null) {
-            for (WebSocketSession s : sessions) {
-                if (s.isOpen()) {
-                    s.sendMessage(new TextMessage(objectMapper.writeValueAsString(commentRequestDto)));
-                }
+        for (WebSocketSession s : sessions) {
+            if (s.isOpen()) {
+                s.sendMessage(new TextMessage(objectMapper.writeValueAsString(commentResponseDto)));
             }
         }
 
@@ -60,32 +58,15 @@ public class CommentWebSocketHandler extends TextWebSocketHandler {
             @NonNull WebSocketSession session,
             @NonNull CloseStatus status
     ) {
-        Long postId = getPostIdFromSession(session);
+        Long postId = Long.parseLong(session.getAttributes().get("postId").toString());
         ConcurrentLinkedQueue<WebSocketSession> sessions = sessionMap.get(postId);
+        sessions.remove(session);
 
-        if (sessions != null) {
-            sessions.remove(session);
-
-            if (sessions.isEmpty()) {
-                sessionMap.remove(postId);
-            }
+        if (sessions.isEmpty()) {
+            sessionMap.remove(postId);
         }
 
         log.info("comment websocket closes = postId : {}", postId);
-    }
-
-    private Long getPostIdFromSession(WebSocketSession session) {
-        try {
-            String query = Objects.requireNonNull(session.getUri()).getQuery();
-            String[] params = query.split("=");
-            if (params.length == 2 && "postId".equals(params[0])) {
-                return Long.valueOf(params[1]);
-            }
-            throw new IllegalArgumentException("Invalid query parameter: " + query);
-        } catch (Exception e) {
-            log.error("Failed to extract postId from session URI", e);
-            throw new RuntimeException("Invalid WebSocket session: postId is required");
-        }
     }
 
 }
