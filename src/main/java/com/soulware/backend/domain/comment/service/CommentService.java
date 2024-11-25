@@ -23,27 +23,33 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public Slice<CommentResponseDto> getComments(
-        Long postId,
-        Pageable pageable
+            Long postId,
+            Pageable pageable
     ) {
         Post post = postService.getPostByPostId(postId);
         Slice<Comment> comments = commentRepository.findAllByPost(post, pageable);
 
         return comments.map(comment -> new CommentResponseDto(
-            comment.getId(),
-            comment.getContent(),
-            comment.getUser().getUsername()
+                comment.getId(),
+                comment.getContent(),
+                comment.getUser().getUsername()
         ));
     }
 
     @Transactional
-    public void createComment(Long userId, Long postId, String content) {
+    public CommentResponseDto createComment(Long userId, Long postId, String content) {
         User user = userService.getUserByUserId(userId);
         Post post = postService.getPostByPostId(postId);
         Comment comment = new Comment(content, user, post);
         post.addComment(comment);
 
         commentRepository.save(comment);
+
+        return new CommentResponseDto(
+                comment.getId(),
+                comment.getContent(),
+                user.getUsername()
+        );
     }
 
     @Transactional
@@ -74,7 +80,7 @@ public class CommentService {
 
     public Comment getCommentByCommentId(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
-            () -> new NullPointerException("존재하지 않는 코멘트입니다.")
+                () -> new NullPointerException("존재하지 않는 코멘트입니다.")
         );
     }
 }

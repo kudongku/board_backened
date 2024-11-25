@@ -13,9 +13,4 @@ public class CommentResponseDto {
     private String content;
     private String writerUsername;
 
-    public CommentResponseDto(String content, String writerUsername) {
-        this.content = content;
-        this.writerUsername = writerUsername;
-    }
-
 }
